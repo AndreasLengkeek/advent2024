@@ -4,25 +4,21 @@ Console.WriteLine($"Total reports: {reports.Count}");
 var safeCount = 0;
 foreach (var report in reports)
 {
-    report.ForEach(x => Console.Write($"{x} "));
-
     var isSafe = ReportIsSafe(report);
-    PrintReportStatus(isSafe);
 
-    if (isSafe)
-    {
-        safeCount++;
-    }
+    if (isSafe) safeCount++;
     else
     {
+        // run all variants with an error buffer
         var isSafeB = false;
         for (int i = 0; i < report.Count; i++)
         {
-            var substituteReport = report.Where((item, index) => index != i).Select(x => x).ToList();
+            var bReport = report
+                .Where((item, index) => index != i)
+                .ToList();
+
             Console.Write('\t');
-            substituteReport.ForEach(x => Console.Write($"{x} "));
-            isSafeB = ReportIsSafe(substituteReport);
-            PrintReportStatus(isSafeB);
+            isSafeB = ReportIsSafe(bReport);
             if (isSafeB) break;
         }
 
@@ -32,8 +28,10 @@ foreach (var report in reports)
 
 Console.WriteLine($"Safe reports: {safeCount}");
 
-static void PrintReportStatus(bool isSafe)
+static void PrintReport(List<int> report, bool isSafe)
 {
+    report.ForEach(x => Console.Write($"{x} "));
+
     Console.BackgroundColor = isSafe ? ConsoleColor.Green : ConsoleColor.Red;
     Console.Write(isSafe ? "Safe" : "Unsafe");
     Console.BackgroundColor = ConsoleColor.Black;
@@ -63,6 +61,7 @@ static bool ReportIsSafe(List<int> report)
 
         prevLevel = level;
     }
+    PrintReport(report, isSafe);
     return isSafe;
 }
 
